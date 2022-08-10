@@ -60,7 +60,6 @@ function test_function_measure(){
     while [[ -n "`ps -p $1 | tail -n +2`" ]]
     do
         info="`ps -p $1 -o %mem,%cpu,rss,vsz | tail -n +2`"
-        echo "-- `ps -p $1 -o %mem,%cpu,rss,vsz | tail -n +2` --"
         check_values "$info"
         (( counter += 1 ))
         sleep 1
@@ -76,6 +75,13 @@ function test_function_measure(){
 function test_function_starter(){
     coproc func { $*; }
     pid=${func_PID}
+    exec 3>&${func[0]}
+    (
+        while read -u 3 -r line
+        do
+            echo $line
+        done
+    )&
     test_function_measure $pid
     wait $pid
  
