@@ -54,22 +54,90 @@ function check_values(){
 
 }
 
+function get_childs_pid(){
+    parent=$1
+    for i in "`pgrep -P $parent`"
+    do
+        if [[ -z "$i" ]]; then
+            break
+        fi
+        childrens+=(`echo -n $i`)
+        get_childs_pid $i
+    done
+}
+
+function fill_arr(){
+    local tmp_arr=($*)
+    local index=0
+    for (( i=0;i<${#tmp_arr[@]};i+=5 ))
+    do
+        index=${tmp_arr[$i]}
+        for (( j=0;j<5;j++ ))
+        do
+            arr[$index,$j]=${tmp_arr[$((i+j))]}
+        done
+    done
+}
+
+function calculate(){
+    arr_rows=0
+    local key=0
+    while [[ -n "${arr[${childrens[$arr_rows]},0]}" ]]
+    do
+        key=${arr[${childrens[$arr_rows]},0]}
+        if [[ -n "${result_arr[$key,0]}" ]]; then
+            # this process has been pushed result_arr before so update values.
+            echo "merahaba"
+            for (( i=1;i<5;i++ ))
+            do
+                if (( $(echo "${arr[$key,$i]} > ${result_arr[$key,$i]}" | bc -l) )); then
+                    result_arr[$key,$i]=${arr[$key,$i]}
+                fi
+                result_arr[$key,$(($i+4))]=$(echo "${result_arr[$key,$(($i+4))]} + ${arr[$key,$i]}" | bc)
+            done
+            result_arr[$key,9]=$(( ${result_arr[$key,9]} + 1))
+        else
+            # new subprocess spawned.
+            echo "dünya"
+            pids+=("$key")
+            for (( i=0;i<5;i++ ))
+            do  
+                result_arr[$key,$i]=${arr[$key,$i]}
+                if [[ $i -eq 0 ]]; then
+                    continue 
+                else
+                    result_arr[$key,$(($i+4))]=${arr[$key,$i]}
+                fi
+            done
+            result_arr[$key,9]=1
+        fi
+        arr_rows=$((arr_rows+1))
+
+    done
+}
+
 function test_function_measure(){
-    read -r max_cpu max_rss max_vsz max_memory avg_cpu avg_rss avg_vsz avg_memory <<< $(echo "0 0 0 0 0 0 0 0")
-    counter=0
+    pids=()
+    declare -A result_arr
     while [[ -n "`ps -p $1 | tail -n +2`" ]]
     do
-        info="`ps -p $1 -o %mem,%cpu,rss,vsz | tail -n +2`"
-        check_values "$info"
-        (( counter += 1 ))
+        declare -A arr
+        childrens=()
+        get_childs_pid $1
+        info=$(ps -p "${childrens[*]}" -o pid,%mem,%cpu,rss,vsz | tail -n +2)
+        fill_arr "$info"
+        calculate
+        unset arr
         sleep 1
     done
-    echo "$max_cpu $max_memory, $max_rss, $max_vsz"
-    avg_cpu=`echo "$avg_cpu / $counter" | bc -l`
-    avg_memory=`echo "$avg_memory / $counter" | bc -l`
-    avg_rss=`echo "$avg_rss / $counter" | bc -l`
-    avg_vsz=`echo "$avg_vsz / $counter" | bc -l`
-    echo "$avg_cpu, $avg_memory, $avg_rss, $avg_vsz"
+
+    deneme=0
+    echo "${childrens[0]}"
+    while [[ -n "${result_arr[${pids[0]},$deneme]}" ]]
+    do
+        echo "${result_arr[${pids[0]},$deneme]}"
+        (( deneme++ ))
+    done
 }
 
 function test_function_starter(){
@@ -88,7 +156,7 @@ function test_function_starter(){
 }
 
 function main(){
-	sar_starter 1 5 "before"
+	#sar_starter 1 5 "before"
     test_function_starter $*
 
 }
