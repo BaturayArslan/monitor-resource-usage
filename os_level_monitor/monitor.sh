@@ -64,7 +64,6 @@ function fill_arr(){
         tmp_arr[$k]=${inf[$k]}
     done
     tmp_arr[5]="${inf[@]:5:${#inf[@]}}"
-    echo "--${tmp_arr[@]}--"
 
     for (( i=0;i<${#tmp_arr[@]};i+=6 ))
     do
@@ -127,13 +126,6 @@ function test_function_measure(){
         sleep 1
     done
 
-    deneme=0
-    echo "${childrens[0]}"
-    while [[ -n "${result_arr[${pids[0]},$deneme]}" ]]
-    do
-        echo "${result_arr[${pids[0]},$deneme]}"
-        (( deneme++ ))
-    done
 }
 
 list_descendants ()
