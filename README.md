@@ -13,8 +13,8 @@ Bunch of tools and code snippets that help you measure resource usage of your py
 ```bash
 monitor.sh "python3 path/to/your/code"
 ```
-![report-wtih-text](https://user-images.githubusercontent.com/33760107/184515431-63629cb7-71fb-4f12-bf34-9dde49d9ad25.png)
-![memory-sample](https://user-images.githubusercontent.com/33760107/184515436-46440385-b155-4c92-8efe-ee52b6519a1c.png)
+![report-wtih-text](https://user-images.githubusercontent.com/33760107/184515452-28156768-bc0f-4928-aeed-8a529a0bf746.png)
+![memory-sample](https://user-images.githubusercontent.com/33760107/184515455-6489656f-1265-4153-9562-88b051aa145a.png)
 
 
 #### With Python Resource Module ####
