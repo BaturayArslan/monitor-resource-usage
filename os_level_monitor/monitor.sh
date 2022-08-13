@@ -187,8 +187,6 @@ function generate_report(){
     "pid" "max_memory" "max_cpu" "max_rss" "max_vsz" "avg_memory" "avg_cpu" "avg_rss" "avg_vsz" "time" "command" >> report.txt
     row=0
     col=0
-    echo "${result_arr[${pids[$row]},$col]}***"
-    echo "${pids[$row]} :: pid"
     while [[ -n "${result_arr[${pids[$row]},$col]}" ]]
     do
         local tmp_arr=()

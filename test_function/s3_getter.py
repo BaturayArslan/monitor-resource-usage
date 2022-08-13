@@ -131,8 +131,11 @@ async def main():
         response = next_response.result()
 
 
+def run():
+    asyncio.run(main())
+
 try:
     if __name__ == '__main__':
-        asyncio.run(main())
+        run()
 except Exception as e:
     raise (e)
